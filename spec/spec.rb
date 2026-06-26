@@ -29,6 +29,50 @@ describe ConnectFour do
         end
       end
     end
+    describe "#check_win" do
+      context "when no player has won" do
+        subject(:board) { Board.new }
+        it "returns exactly false" do
+          expect(board.check_win).to be(false)
+        end
+      end
+      context "when a player has won" do
+        subject(:board) { Board.new }
+
+        it "returns exactly true with 4 in a row" do
+          board.insert_token(0, 0, "red")
+          board.insert_token(0, 1, "red")
+          board.insert_token(0, 2, "red")
+          board.insert_token(0, 3, "red")
+          expect(board.check_win).to be(true)
+        end
+
+        it "returns exactly true with 4 in a diagonal" do
+          board.insert_token(0, 0, "red")
+          board.insert_token(1, 1, "red")
+          board.insert_token(2, 2, "red")
+          board.insert_token(3, 3, "red")
+          expect(board.check_win).to be(true)
+        end
+      end
+    end
+    describe "#check_full" do
+      context "if board is full" do
+        subject(:board_obj) { Board.new }
+        before do
+          board_obj.instance_variable_set(:@board, ["tired"])
+        end
+        it "returns exactly true" do
+          expect(board_obj.check_full).to be(true)
+        end
+      end
+      context "if board is not full" do
+        subject(:board) { Board.new }
+        it "returns exactly false" do
+          expect(board.check_full).to be(false)
+        end
+      end
+    end
   end
 end
 

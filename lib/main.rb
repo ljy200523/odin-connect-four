@@ -5,7 +5,7 @@ class Player
   end
   def get_input
     loop do
-      print "Give a column(1-7) for #{@colour}: "
+      print "Give a column(0-5) for #{@colour}: "
       response = gets.chomp.to_i
       if validate_input(response)
         return response
@@ -13,7 +13,7 @@ class Player
     end
   end
   def validate_input(input)
-    if input > 0 && input < 8
+    if input >= 0 && input < 6
       true
     else
       false
@@ -23,13 +23,52 @@ end
 
 class Board
   def initialize
-    @board = Array.new(7) { Array.new(6, "") }
+    @board = Array.new(7) { Array.new(6, "") } #6 rows, 7 columns
   end
   def print_board
     @board.each { |row| p row }
   end
-  def insert_token(row, col, colour)
-    @board[row][col] = colour
+  def insert_token(col, colour)
+    lowest = nil
+    @board.each_with_index do |row, index|
+      if @board[index][col] == ""
+        lowest = index
+      end
+    end
+    @board[lowest][col] = colour
+  end
+  def check_token_position(col, colour)
+    lowest = nil
+    @board.each_with_index do |row, index|
+      if @board[index][col] == ""
+        lowest = index
+      end
+    end
+    lowest == nil ? false : true
+  end
+  def check_win
+    @board.each_with_index do |row, ridx|
+      row.each_with_index do |column, cidx|
+        if @board[ridx][cidx] == @board[ridx][cidx+1] && @board[ridx][cidx] == @board[ridx][cidx+2] && @board[ridx][cidx] == @board[ridx][cidx+3] && @board[ridx][cidx] != ""
+          return true
+        elsif @board[ridx][cidx] == @board[ridx+1][cidx] && @board[ridx][cidx] == @board[ridx+2][cidx] && @board[ridx][cidx] == @board[ridx+3][cidx] && @board[ridx][cidx] != ""
+          return true
+        elsif @board[ridx][cidx] == @board[ridx+1][cidx+1] && @board[ridx][cidx] == @board[ridx+2][cidx+2] && @board[ridx][cidx] == @board[ridx+3][cidx+3] && @board[ridx][cidx] != ""
+          return true
+        elsif @board[ridx][cidx] == @board[ridx-1][cidx+1] && @board[ridx][cidx] == @board[ridx-2][cidx+2] && @board[ridx][cidx] == @board[ridx-3][cidx+3] && @board[ridx][cidx] != ""
+          return true
+        else
+          return false
+        end
+      end
+    end
+  end
+  def check_full
+    if @board.flatten.all? { |element| element.match?(/\w/) }
+      return true
+    else
+      return false
+    end
   end
 end
 
@@ -41,16 +80,43 @@ class ConnectFour
     @board = Board.new
   end
   def play
-    @board.print_board
-    @player_one.get_input
-    @board.insert_token(1, 2, red)
+    loop do
+      @board.print_board
+      take_turn(@player_one)
+      break if check_end
+
+      @board.print_board
+      take_turn(@player_two)
+      break if check_end
+    end
+  end
+
+  def take_turn(player)
+    loop do
+      input_one = player.get_input
+      if @board.check_token_position(input_one, player.colour)
+        @board.insert_token(input_one, player.colour)
+        break
+      else
+        puts "That column is full, try another column"
+      end
+    end
+  end
+
+  def check_end
+    if @board.check_win
+      @board.print_board
+      puts "A player has won the game"
+    elsif @board.check_full
+      @board.print_board
+      puts "The game is a draw"
+    end
   end
 end
 
 if __FILE__ == $0 # "$0" is the name of file that starts Ruby process
   connect_four = ConnectFour.new
-  player = Player.new("red")
-  player.get_input
+  connect_four.play
 end
 
 

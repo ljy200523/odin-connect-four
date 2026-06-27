@@ -49,19 +49,32 @@ class Board
   def check_win
     @board.each_with_index do |row, ridx|
       row.each_with_index do |column, cidx|
-        if @board[ridx][cidx] == @board[ridx][cidx+1] && @board[ridx][cidx] == @board[ridx][cidx+2] && @board[ridx][cidx] == @board[ridx][cidx+3] && @board[ridx][cidx] != ""
-          return true
-        elsif @board[ridx][cidx] == @board[ridx+1][cidx] && @board[ridx][cidx] == @board[ridx+2][cidx] && @board[ridx][cidx] == @board[ridx+3][cidx] && @board[ridx][cidx] != ""
-          return true
-        elsif @board[ridx][cidx] == @board[ridx+1][cidx+1] && @board[ridx][cidx] == @board[ridx+2][cidx+2] && @board[ridx][cidx] == @board[ridx+3][cidx+3] && @board[ridx][cidx] != ""
-          return true
-        elsif @board[ridx][cidx] == @board[ridx-1][cidx+1] && @board[ridx][cidx] == @board[ridx-2][cidx+2] && @board[ridx][cidx] == @board[ridx-3][cidx+3] && @board[ridx][cidx] != ""
-          return true
-        else
-          return false
-        end
+
+        next if column == ""
+
+        return true if check_horizontal?(ridx, cidx)
+        return true if check_vertical?(ridx, cidx)
+        return true if check_diagonal_up?(ridx, cidx)
+        return true if check_diagonal_down?(ridx, cidx)
       end
     end
+    return false
+  end
+  def check_horizontal?(row, col)
+    return false if col > 3
+    @board[row][col] == @board[row][col+1] && @board[row][col] == @board[row][col+2] && @board[row][col] == @board[row][col+3]
+  end
+  def check_vertical?(row, col)
+    return false if row > 2
+    @board[row][col] == @board[row+1][col] && @board[row][col] == @board[row+2][col] && @board[row][col] == @board[row+3][col]
+  end
+  def check_diagonal_up?(row, col)
+    return false if row > 2 || col > 3
+    @board[row][col] == @board[row+1][col+1] && @board[row][col] == @board[row+2][col+2] && @board[row][col] == @board[row+3][col+3]
+  end
+  def check_diagonal_down?(row, col)
+    return false if row < 3 || col > 3
+    @board[row][col] == @board[row-1][col+1] && @board[row][col] == @board[row-2][col+2] && @board[row][col] == @board[row-3][col+3]
   end
   def check_full
     if @board.flatten.all? { |element| element.match?(/\w/) }
@@ -83,10 +96,14 @@ class ConnectFour
     loop do
       @board.print_board
       take_turn(@player_one)
+      p @board.check_win
+      p @board.check_full
       break if check_end
 
       @board.print_board
       take_turn(@player_two)
+      p @board.check_win
+      p @board.check_full
       break if check_end
     end
   end
@@ -107,10 +124,13 @@ class ConnectFour
     if @board.check_win
       @board.print_board
       puts "A player has won the game"
+      return true
     elsif @board.check_full
       @board.print_board
       puts "The game is a draw"
+      return true
     end
+    return false
   end
 end
 

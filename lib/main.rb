@@ -5,7 +5,7 @@ class Player
   end
   def get_input
     loop do
-      print "Give a column(0-5) for #{@colour}: "
+      print "Give a column(0-6) for #{@colour}: "
       response = gets.chomp.to_i
       if validate_input(response)
         return response
@@ -13,7 +13,7 @@ class Player
     end
   end
   def validate_input(input)
-    if input >= 0 && input < 6
+    if input >= 0 && input < 7
       true
     else
       false
@@ -23,10 +23,20 @@ end
 
 class Board
   def initialize
-    @board = Array.new(7) { Array.new(6, "") } #6 rows, 7 columns
+    @board = Array.new(6) { Array.new(7, "") } #6 rows, 7 columns
   end
   def print_board
-    @board.each { |row| p row }
+    @board.each do |row|
+      formatted_row = row.map do |slot|
+        case slot
+        when "red" then "🔴"
+        when "yellow" then "🟡"
+        else "⚪"
+        end
+      end
+      puts formatted_row.join(" ")
+    end
+    puts " 0  1  2  3  4  5  6"
   end
   def insert_token(col, colour)
     lowest = nil
